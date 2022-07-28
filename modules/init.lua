@@ -30,7 +30,6 @@ if IsDuplicityVersion then
 		versioncheck = GetConvar('inventory:versioncheck', 'true') == 'true',
 		randomloot = GetConvar('inventory:randomloot', 'true') == 'true',
 		evidencegrade = GetConvarInt('inventory:evidencegrade', 2),
-		clearstashes = GetConvar('inventory:clearstashes', '6 MONTH'),
 		vehicleloot = json.decode(GetConvar('inventory:vehicleloot', [[
 			[
 				["cola", 1, 1],
@@ -80,6 +79,19 @@ local function spamError(err)
 	error(err)
 end
 
+if shared.framework == 'ox' then
+	local file = ('imports/%s.lua'):format(lib.service)
+	local import = LoadResourceFile('ox_core', file)
+	local func, err = load(import, ('@@ox_core/%s'):format(file))
+
+	if err then
+		shared.ready = false
+		spamError(err)
+	end
+
+	func()
+end
+
 function data(name)
 	if shared.server and shared.ready == nil then return {} end
 	local file = ('data/%s.lua'):format(name)
@@ -95,15 +107,23 @@ function data(name)
 end
 
 if not lib then
-	spamError('Ox Inventory requires the ox_lib resource, refer to the documentation.')
+	spamError('ox_inventory requires the ox_lib resource, refer to the documentation.')
 end
 
-if not lib.checkDependency('oxmysql', '2.0.0') or not lib.checkDependency('ox_lib', '2.0.1') then
-	spamError('Dependencies do not match the required versions (check oxmysql and ox_lib)')
+local success, msg = lib.checkDependency('oxmysql', '2.0.0')
+
+if not success then
+	spamError(msg or "ox_inventory requires version '2.0.0' of 'oxmysql'")
+end
+
+success, msg = lib.checkDependency('ox_lib', '2.3.2')
+
+if not success then
+	spamError(msg or "ox_inventory requires version '2.2.0' of 'ox_lib'")
 end
 
 if not LoadResourceFile(shared.resource, 'web/build/index.html') then
-	spamError('UI has not been built, refer to the documentation or download a release build.')
+	spamError('UI has not been built, refer to the documentation or download a release build.\n	^3https://overextended.github.io/docs/ox_inventory/^0')
 end
 
 -- Disable qtarget compatibility if it isn't running

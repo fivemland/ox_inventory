@@ -1,7 +1,7 @@
 local shops = {}
 
 local function createShopBlip(name, data, location)
-	local blip = AddBlipForCoord(location.x, location.y)
+	local blip = AddBlipForCoord(location.x, location.y, location.z)
 	SetBlipSprite(blip, data.id)
 	SetBlipDisplay(blip, 4)
 	SetBlipScale(blip, data.scale)
@@ -18,21 +18,33 @@ local function openShop(data)
 	client.openInventory('shop', data)
 end
 
+local function nearbyShop(self)
+	DrawMarker(2, self.coords.x, self.coords.y, self.coords.z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.3, 0.2, 0.15, 30, 150, 30, 222, false, false, false, true, false, false, false)
+
+	if self.currentDistance < 1.2 and lib.points.closest().id == self.id and IsControlJustReleased(0, 38) then
+		client.openInventory('shop', { id = self.invId, type = self.type })
+	end
+end
+
 client.shops = setmetatable(data('shops'), {
 	__call = function(self)
-		if next(shops) then
-			for i = 1, #shops do
-				local shop = shops[i]
-				shop:remove()
+		for i = 1, #shops do
+			local shop = shops[i]
 
-				if shop.blip then
-					RemoveBlip(shop.blip)
-				end
+			if shop.zoneId then
+				exports.qtarget:RemoveZone(shop.zoneId)
 			end
 
-			table.wipe(shops)
+			if shop.remove then
+				shop:remove()
+			end
+
+			if shop.blip then
+				RemoveBlip(shop.blip)
+			end
 		end
 
+		table.wipe(shops)
 		local id = 0
 
 		for type, shop in pairs(self) do
@@ -59,11 +71,11 @@ client.shops = setmetatable(data('shops'), {
 							local shopid = type..'-'..i
 							id += 1
 
-							if shop.blip then
-								shops[id] = { blip = createShopBlip(shop.name, shop.blip, target.loc) }
-							end
+							shops[id] = {
+								zoneId = shopid,
+								blip = shop.blip and createShopBlip(shop.name, shop.blip, target.loc)
+							}
 
-							exports.qtarget:RemoveZone(shopid)
 							exports.qtarget:AddBoxZone(shopid, target.loc, target.length or 0.5, target.width or 0.5, {
 								name = shopid,
 								heading = target.heading or 0.0,
@@ -81,7 +93,7 @@ client.shops = setmetatable(data('shops'), {
 										end
 									},
 								},
-								distance = target.distance or 3.0
+								distance = target.distance or 2.0
 							})
 						end
 					end
@@ -89,23 +101,17 @@ client.shops = setmetatable(data('shops'), {
 					for i = 1, #shop.locations do
 						id += 1
 						local coords = shop.locations[i]
-						local point = lib.points.new(coords, 16, { inv = 'shop', invId = i, type = type })
-
-						function point:nearby()
-							DrawMarker(2, self.coords.x, self.coords.y, self.coords.z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.3, 0.2, 0.15, 30, 150, 30, 222, false, false, false, true, false, false, false)
-
-							if self.currentDistance < 1.2 and lib.points.closest().id == self.id and IsControlJustReleased(0, 38) then
-								client.openInventory('shop', { id = self.invId, type = self.type })
-							end
-						end
-
-						if shop.blip then
-							point.blip = createShopBlip(shop.name, shop.blip, coords)
-						end
-
-						shops[id] = point
 						shop.target = nil
 						shop.model = nil
+						shops[id] = lib.points.new(coords, 16, {
+							coords = coords,
+							distance = 16,
+							inv = 'shop',
+							invId = i,
+							type = type,
+							nearby = nearbyShop,
+							blip = shop.blip and createShopBlip(shop.name, shop.blip, coords)
+						})
 					end
 				end
 			end

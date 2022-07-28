@@ -182,6 +182,12 @@ return {
 			durability = 0.2,
 			ammoname = 'ammo-38'
 		},
+		
+		['WEAPON_EMPLAUNCHER'] = {
+			label = 'Compact EMP Launcher',
+			weight = 2750,
+			durability = 0.2
+		},
 
 		['WEAPON_FIREEXTINGUISHER'] = {
 			label = 'Fire Extinguisher',
@@ -242,6 +248,12 @@ return {
 			label = 'Hatchet',
 			weight = 1000,
 			durability = 0.1,
+		},
+		
+		['WEAPON_HEAVYRIFLE'] = {
+			label = 'Heavy Rifle',
+			weight = 2750,
+			durability = 0.2
 		},
 
 		['WEAPON_HAZARDCAN'] = {
@@ -380,6 +392,12 @@ return {
 		['WEAPON_PETROLCAN'] = {
 			label = 'Gas Can',
 			weight = 12000,
+		},
+		
+		['WEAPON_PERICOPISTOL'] = {
+			label = 'Perico Pistol',
+			weight = 1750,
+			durability = 0.1
 		},
 
 		['WEAPON_PIPEBOMB'] = {
@@ -569,7 +587,7 @@ return {
 			weight = 120,
 			type = 'flashlight',
 			client = {
-				component = {`COMPONENT_AT_PI_FLSH`,`COMPONENT_AT_AR_FLSH`},
+				component = {`COMPONENT_AT_PI_FLSH`,`COMPONENT_AT_AR_FLSH`, `COMPONENT_AT_PI_FLSH_02`},
 				usetime = 2500
 			}
 		},
@@ -729,7 +747,7 @@ return {
 			type = 'sight',
 			weight = 280,
 			client = {
-				component = {`COMPONENT_AT_SCOPE_MEDIUM`, `COMPONENT_AT_SCOPE_MEDIUM_MK2`, `COMPONENT_AT_PI_RAIL_02`},
+				component = {`COMPONENT_AT_SCOPE_MEDIUM`, `COMPONENT_AT_SCOPE_MEDIUM_MK2`, `COMPONENT_AT_PI_RAIL_02`, `COMPONENT_AT_PI_RAIL`},
 				usetime = 2500
 			}
 		},
