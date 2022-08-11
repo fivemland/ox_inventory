@@ -30,7 +30,7 @@ local function onLogout()
 			client.parachute = false
 		end
 
-		TriggerEvent('ox_inventory:closeInventory')
+		client.closeInventory()
 		PlayerData.loaded = false
 		ClearInterval(client.interval)
 		ClearInterval(client.tick)
@@ -47,21 +47,15 @@ if shared.framework == 'ox' then
 	end)
 
 elseif shared.framework == 'esx' then
-	local ESX
-
-	SetTimeout(1000, function()
-		ESX = exports.es_extended:getSharedObject()
-
-		ESX = {
-			SetPlayerData = ESX.SetPlayerData,
-			PlayerLoaded = ESX.PlayerLoaded
-		}
-
-		if ESX.PlayerLoaded then
-			TriggerServerEvent('ox_inventory:requestPlayerInventory')
+	local ESX = table.create(0, 2)
+	setmetatable(ESX, {
+		__index = function(self, index)
+			local obj = exports.es_extended:getSharedObject()
+			ESX.SetPlayerData = obj.SetPlayerData
+			ESX.PlayerLoaded = obj.PlayerLoaded
+			return ESX[index]
 		end
-	end)
-
+	})
 
 	function client.setPlayerData(key, value)
 		PlayerData[key] = value

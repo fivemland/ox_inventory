@@ -1,11 +1,14 @@
 IsDuplicityVersion = IsDuplicityVersion()
+
+-- Don't be an idiot and change these convar getters (yes, people do that).
+-- https://overextended.github.io/docs/ox_inventory/config
+
 shared = {
 	resource = GetCurrentResourceName(),
 	framework = GetConvar('inventory:framework', 'esx'),
 	locale = GetConvar('inventory:locale', 'en'),
 	playerslots = GetConvarInt('inventory:slots', 50),
 	playerweight = GetConvarInt('inventory:weight', 30000),
-	autoreload = GetConvar('inventory:autoreload', 'false') == 'true',
 	trimplate = GetConvar('inventory:trimplate', 'true') == 'true',
 	qtarget = GetConvar('inventory:qtarget', 'false') == 'true',
 	police = json.decode(GetConvar('inventory:police', '["police", "sheriff"]')),
@@ -53,10 +56,12 @@ if IsDuplicityVersion then
 else
 	PlayerData = {}
 	client = {
+		autoreload = GetConvar('inventory:autoreload', 'false') == 'true',
 		screenblur = GetConvar('inventory:screenblur', 'true') == 'true',
 		keys = json.decode(GetConvar('inventory:keys', '["F2", "K", "TAB"]')),
 		enablekeys = json.decode(GetConvar('inventory:enablekeys', '[249]')),
-		aimedfiring = GetConvar('inventory:aimedfiring', 'false') == 'true'
+		aimedfiring = GetConvar('inventory:aimedfiring', 'false') == 'true',
+		giveplayerlist = GetConvar('inventory:giveplayerlist', 'false') == 'true',
 	}
 end
 
@@ -110,17 +115,13 @@ if not lib then
 	spamError('ox_inventory requires the ox_lib resource, refer to the documentation.')
 end
 
-local success, msg = lib.checkDependency('oxmysql', '2.0.0')
+local success, msg = lib.checkDependency('oxmysql', '2.4.0')
 
-if not success then
-	spamError(msg or "ox_inventory requires version '2.0.0' of 'oxmysql'")
-end
+if not success then spamError(msg) end
 
-success, msg = lib.checkDependency('ox_lib', '2.3.2')
+success, msg = lib.checkDependency('ox_lib', '2.9.0')
 
-if not success then
-	spamError(msg or "ox_inventory requires version '2.2.0' of 'ox_lib'")
-end
+if not success then spamError(msg) end
 
 if not LoadResourceFile(shared.resource, 'web/build/index.html') then
 	spamError('UI has not been built, refer to the documentation or download a release build.\n	^3https://overextended.github.io/docs/ox_inventory/^0')
